@@ -1,5 +1,5 @@
-
-from django.shortcuts import render, get_object_or_404
+from django.db import IntegrityError
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse
 from django.contrib.auth.models import User
@@ -72,6 +72,15 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return False
         # dobavit v otchet
 
+def parsemm(request):
+    mmhaskell()
+    return redirect('blog-home')
+
+def parsefpcomplete(request, pages):
+    fpcomplete(pages)
+    return redirect('blog-home')
+
+
 def mmhaskell() -> [Post]:
     def find_title(string) -> str:
         titleSoup = BeautifulSoup(string, 'html.parser')
@@ -97,7 +106,6 @@ def mmhaskell() -> [Post]:
     soup = BeautifulSoup(html, 'html.parser')
     articles = soup.find_all('article')
     posts = []
-    pool = Post.objects.all()
     mmhaskellAuthor = User.objects.filter(username='mmhaskell').first()
     for i in articles:
         article_video = find_youtube_embed(str(i))
@@ -109,7 +117,44 @@ def mmhaskell() -> [Post]:
             article_content = find_text_content(str(i), False)
             post = Post(title=find_title(str(i)), content=article_content,
                         author=mmhaskellAuthor)
-        if post not in pool:
+        try:
             post.save()
+        except IntegrityError:
+            pass
         posts.append(post)
+    return posts
+
+def fpcomplete(pages) -> [Post]:
+    def parse_page(url) -> [str]:
+        html = requests.get(url).text
+        soup = BeautifulSoup(html, 'html.parser')
+        re_link = lambda x: re.findall(re.compile('href="(.*?)"'), str(x))[0]
+        article_hrefs = soup.find_all('a', class_='text-decoration-none')
+        article_urls_dup = list(map(re_link, article_hrefs))
+        article_urls = []
+        for i in enumerate(article_urls_dup):
+            if i[0] % 2 == 0: article_urls.append(i[1])
+
+        return article_urls
+
+    def parse_article(author, url) -> Post:
+        html = requests.get(url).text
+        soup = BeautifulSoup(html, 'html.parser')
+        title = str(soup.find('h1', class_='text-uppercase').contents[0])
+        content = str(soup.find('div', class_='container my-5 blog-body'))
+        return Post(title=title, content=content, author=author)
+
+    posts = []
+    base = 'https://www.fpcomplete.com/blog/'
+    fpCompAuthor = User.objects.filter(username='fpcomplete').first()
+    for i in range(1, pages + 1):
+        page_urls = parse_page(f'{base}/page/{i}')
+        for x in page_urls:
+            try:
+                post = parse_article(fpCompAuthor, x)
+                posts.append(post)
+                post.save()
+            except IntegrityError:
+                pass
+
     return posts
