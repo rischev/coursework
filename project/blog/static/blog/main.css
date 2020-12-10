@@ -13,11 +13,11 @@ ul {
 }
 
 .bg-steel {
-  background-color: #5f788a;
+    background-color: #5E5086;
 }
 
 .site-header .navbar-nav .nav-link {
-  color: #cbd5db;
+  color: #FFFFFF;
 }
 
 .site-header .navbar-nav .nav-link:hover {
@@ -85,3 +85,48 @@ a.article-title:hover {
  .content-section {
    width: 1000px;
  }
+
+.post-short {
+  max-height: 600px;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.embed-video {
+  height: 540px;
+  width: 960px;
+}
+
+.btn-info {
+  background-color: #B18EAF;
+  border-color: #B18EAF;
+}
+
+.btn-outline-info {
+  border-color: #B18EAF;
+  color: #453A62;
+}
+
+a:link {
+  color: #8F4E8B;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #5E5086;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #CD24C2;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+a:active {
+  color: yellow;
+  background-color: transparent;
+  text-decoration: underline;
+}

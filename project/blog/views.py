@@ -90,7 +90,7 @@ def mmhaskell() -> [Post]:
     def find_youtube_embed(string) -> str:
         video = re.findall(re.compile("youtube.com/(.*?)\\&"), string)
         if len(video) > 0:
-            return ("www.youtube.com/" + re.findall(re.compile("youtube.com/(.*?)\\&"), string)[0])
+            return ("www.youtube.com/" + re.findall(re.compile("youtube.com/(.*?)[?]"), string)[0])
         return None
 
     html = requests.get('https://mmhaskell.com/blog').text
