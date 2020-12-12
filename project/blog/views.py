@@ -1,8 +1,10 @@
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post
 import requests
@@ -72,16 +74,24 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return False
         # dobavit v otchet
 
+@login_required
 def parsemm(request):
-    mmhaskell()
+    if request.user == User.objects.filter(username='roman').first():
+        mmhaskell()
+    else:
+        messages.warning(request, "You do not have enough permission")
     return redirect('blog-home')
 
+@login_required
 def parsefpcomplete(request, pages):
-    fpcomplete(pages)
+    if request.user == User.objects.filter(username='roman').first():
+        fpcomplete(pages)
+    else:
+        messages.warning(request, "You do not have enough permission")
     return redirect('blog-home')
 
 
-def mmhaskell() -> [Post]:
+def mmhaskell(request) -> [Post]:
     def find_title(string) -> str:
         titleSoup = BeautifulSoup(string, 'html.parser')
         links = titleSoup.find_all('a')
@@ -124,7 +134,7 @@ def mmhaskell() -> [Post]:
         posts.append(post)
     return posts
 
-def fpcomplete(pages) -> [Post]:
+def fpcomplete(request, pages) -> [Post]:
     def parse_page(url) -> [str]:
         html = requests.get(url).text
         soup = BeautifulSoup(html, 'html.parser')
