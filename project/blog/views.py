@@ -61,7 +61,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if self.request.user == post.author:
             return True
         return False
-        # dobavit v otchet
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
@@ -72,12 +71,11 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if self.request.user == post.author:
             return True
         return False
-        # dobavit v otchet
 
 @login_required
 def parsemm(request):
     if request.user == User.objects.filter(username='roman').first():
-        mmhaskell()
+        mmhaskell(request)
     else:
         messages.warning(request, "You do not have enough permission")
     return redirect('blog-home')
@@ -85,7 +83,7 @@ def parsemm(request):
 @login_required
 def parsefpcomplete(request, pages):
     if request.user == User.objects.filter(username='roman').first():
-        fpcomplete(pages)
+        fpcomplete(request, pages)
     else:
         messages.warning(request, "You do not have enough permission")
     return redirect('blog-home')
